@@ -1,0 +1,37 @@
+extends layout
+
+block content
+  h1 #{title}
+
+  form(method='POST' action='')
+    div.form-group
+      label(for='market_number') Market Number:
+      input#name.form-control(type='text', placeholder='Mapleg 01 etc.' name='market_number' value=(undefined===mandate ? '' : mandate.market_number))
+      br
+      label(for='ttc_amount') TTC Amount:
+      input#name.form-control(type='text', placeholder='' name='ttc_amount' value=(undefined===mandate ? '' : mandate.ttc_amount))
+      br
+      label(for='market_object') Market Object:
+      input#name.form-control(type='text', placeholder='' name='market_object' value=(undefined===mandate ? '' : mandate.market_object))
+      br
+      label(for='nomenclature_code') Nomenclature Code:
+      input#name.form-control(type='text', placeholder='' name='nomenclature_code' value=(undefined===mandate ? '' : mandate.nomenclature_code))
+      br
+      label(for='service_type') Service Type:
+      select#name.form-control(type='select', placeholder='' name='service_type' value=(undefined===mandate ? '' : mandate.service_type))
+        option(value='Travaux') Travaux
+        option(value='Fournitures') Fournitures
+        option(value='Service') Services
+      br
+      label(for='service_provider') Service Provider:
+      input#name.form-control(type='text', placeholder='' name='service_provider' value=(undefined===mandate ? '' : mandate.service_provider))
+      br
+      label(for='managing_service') Managing Service:
+      input#name.form-control(type='text', placeholder='' name='managing_service' value=(undefined===mandate ? '' : mandate.managing_service))
+      br
+      button.btn.btn-primary(type='submit') Submit
+
+  if errors 
+    ul
+      for error in errors
+        li!= error.msg

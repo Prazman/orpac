@@ -1,0 +1,34 @@
+doctype html
+html
+  head
+    title= title
+    link(rel='stylesheet', href='/bootstrap/css/bootstrap.min.css')
+    link(rel='stylesheet', href='/bootstrap/css/bootstrap-theme.min.css')
+  body
+    div(class='container-fluid')
+      div(class='row')
+        div(class='col-sm-2')
+          block sidebar
+            ul(class='nav navbar')
+              li 
+                a(href='/') Menu Principal
+              li 
+                a(href='/') Importer des mandats
+              li 
+                a(href='/') Mandats
+              li 
+                a(href='/mandate/create') Créer un mandat
+              li 
+                a(href='/') Couverture marché
+              li 
+                a(href='/') Risques juridiques
+              li 
+                a(href='/') Prestataires
+              li 
+                a(href='/') Service Gestionnaire
+
+                
+        div(class='col-sm-10')
+          block content
+  footer
+    script(language='javascript', src='/bootstrap/js/bootstrap.min.js')

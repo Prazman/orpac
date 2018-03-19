@@ -1,0 +1,32 @@
+extends layout
+
+block content
+  h1 #{mandate.market_object}
+
+  table
+    a(href=mandate.url+'/update').btn.btn-default
+            span.glyphicon.glyphicon-pencil
+    a(href=mandate.url+'/delete').btn.btn-default
+            span.glyphicon.glyphicon-remove
+    tbody
+      tr
+        td Market Number
+        td #{mandate.market_number}
+      tr
+        td TTC Amount
+        td #{mandate.ttc_amount}
+      tr
+        td Market Object
+        td #{mandate.market_object}
+      tr
+        td Nomenclature Code
+        td #{mandate.nomenclature_code}
+      tr
+        td Service Type
+        td #{mandate.service_type}
+      tr
+        td Service Provider
+        td #{mandate.service_provider}
+      tr
+        td Managing Service
+        td #{mandate.managing_service}

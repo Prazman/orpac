@@ -1,0 +1,13 @@
+extends layout
+
+block content
+  h1 #{mandate.market_object}
+
+  div
+    p Do you really want to delete this Mandate?
+    
+    form(method='POST' action='')
+      div.form-group
+        input#genreid.form-control(type='hidden',name='mandateid', required='true', value=mandate._id )
+
+      button.btn.btn-primary(type='submit') Delete
