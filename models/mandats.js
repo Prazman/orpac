@@ -20,7 +20,7 @@ MandateSchema
     });
 
 MandateSchema
-    .virtual('juridically_covered')
+    .virtual('market_coverture')
     .get(function() {
         return this.market_number !=='';
     });
