@@ -19,9 +19,11 @@ var fs = require('fs'),
 
 
 function mandateCreate(market_number, ttc_amount,market_object, nomenclature_code, service_type, service_provider, managing_service) {
+var unspaced_amount = ttc_amount.replace(/\s/g,'');
+var digital_amount = parseInt(unspaced_amount);
 var mandate_detail = {
   market_number:market_number,
-  ttc_amount:ttc_amount,
+  ttc_amount:digital_amount,
   market_object:market_object,
   nomenclature_code:nomenclature_code,
   service_type:service_type,
