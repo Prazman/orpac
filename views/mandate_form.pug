@@ -7,10 +7,10 @@ block content
     div.form-group
       label(for='procedure_type') Procedure Type:
       select#name.form-control(type='select', placeholder='' name='procedure_type' value=(undefined===mandate ? '' : mandate.procedure_type))
-        option(value='NONE') NONE
-        option(value='MAPLEG') MAPLEG
-        option(value='MAPLOU') MAPLOU
-        option(value='APPEL_OFFRE') Appel d'offres
+        option(value='NONE', selected= (mandate && mandate.service_type=='NONE')) NONE
+        option(value='MAPLEG', selected= (mandate && mandate.service_type=='MAPLEG')) MAPLEG
+        option(value='MAPLOU', selected= (mandate && mandate.service_type=='MAPLOU')) MAPLOU
+        option(value='APPEL_OFFRE', selected= (mandate && mandate.service_type=='APPEL_OFFRE')) Appel d'offres
       br
       label(for='market_number') Market Number:
       input#name.form-control(type='text', placeholder='Mapleg 01 etc.' name='market_number' value=(undefined===mandate ? '' : mandate.market_number))
@@ -26,9 +26,9 @@ block content
       br
       label(for='service_type') Service Type:
       select#name.form-control(type='select', placeholder='' name='service_type' value=(undefined===mandate ? '' : mandate.service_type))
-        option(value='Travaux') Travaux
-        option(value='Fournitures') Fournitures
-        option(value='Service') Services
+        option(value='Travaux', selected= (mandate && mandate.service_type=='Travaux')) Travaux
+        option(value='Fournitures', selected= (mandate && mandate.service_type=='Fournitures')) Fournitures
+        option(value='Service', selected= (mandate && mandate.service_type=='Service')) Services
       br
       label(for='service_provider') Service Provider:
       input#name.form-control(type='text', placeholder='' name='service_provider' value=(undefined===mandate ? '' : mandate.service_provider))

@@ -14,11 +14,10 @@ exports.mandate_list = function(req, res, next) {
                 let total_amount = sumOnKey(element, 'ttc_amount');
 
                 for (var mandate of element) {
-                    let treshold = getTreshold(mandate.procedure_type,mandate.service_type);
-                    console.log('mandate',mandate);
-                    console.log('treshold',treshold);
+                    let treshold = getTreshold(mandate.procedure_type, mandate.service_type);
+
                     //juridicaly covered = total amouhnt does not exceed 30000 or mandate has a market number
-                    mandate.juridic_safety = (total_amount < treshold || mandate.market_coverture);
+                    mandate.juridic_safety = isJuridicallySecured(mandate,total_amount);
                     mandate_list.push(mandate);
                 }
 
@@ -46,7 +45,7 @@ exports.mandate_create_get = function(req, res) {
 // Handle Mandate create on POST.
 exports.mandate_create_post = (req, res, next) => {
     var mandate_detail = {
-        procedure_type:req.body.procedure_type,
+        procedure_type: req.body.procedure_type,
         market_number: req.body.market_number,
         ttc_amount: req.body.ttc_amount,
         market_object: req.body.market_object,
@@ -97,6 +96,7 @@ exports.mandate_update_get = function(req, res) {
 // Handle Mandate update on POST.
 exports.mandate_update_post = function(req, res) {
     var mandate = new Mandate({
+        procedure_type: req.body.procedure_type,
         market_number: req.body.market_number,
         ttc_amount: req.body.ttc_amount,
         market_object: req.body.market_object,
@@ -140,36 +140,41 @@ function sumOnKey(array, key) {
     return total;
 }
 
-function getTreshold(procedure_type,service_type){
+function isJuridicallySecured(mandate, total_amount) {
+    let treshold = getTreshold(mandate.procedure_type, mandate.service_type);
 
-    switch(procedure_type){
+    //juridicaly covered = total amouhnt does not exceed 30000 or mandate has a market number
+    return (total_amount < treshold);
+}
+
+function getTreshold(procedure_type, service_type) {
+
+    switch (procedure_type) {
         case 'NONE':
-        return 30000;
-        break;
+            return 30000;
+            break;
         case 'MAPLEG':
-        return 108000;
-        break;
+            return 108000;
+            break;
         case 'MAPLOU':
-        if(service_type=='Travaux'){
-            return 6657600;
-        }
-        else{
-            return 265600;
-        }
-        break;
+            if (service_type == 'Travaux') {
+                return 6657600;
+            } else {
+                return 265600;
+            }
+            break;
         case 'MAPLOU':
-        if(service_type=='Travaux'){
-            return 6657600;
-        }
-        else{
-            return 265600;
-        }
-        break;
+            if (service_type == 'Travaux') {
+                return 6657600;
+            } else {
+                return 265600;
+            }
+            break;
         case 'APPEL_OFFRE':
-        return 10000000000000000;
-        break;
+            return 10000000000000000;
+            break;
         default:
-        break;
+            break;
 
     }
 }
