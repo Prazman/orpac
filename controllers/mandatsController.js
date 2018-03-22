@@ -14,8 +14,11 @@ exports.mandate_list = function(req, res, next) {
                 let total_amount = sumOnKey(element, 'ttc_amount');
 
                 for (var mandate of element) {
+                    let treshold = getTreshold(mandate.procedure_type,mandate.service_type);
+                    console.log('mandate',mandate);
+                    console.log('treshold',treshold);
                     //juridicaly covered = total amouhnt does not exceed 30000 or mandate has a market number
-                    mandate.juridic_safety = (total_amount < 30000 || mandate.market_coverture);
+                    mandate.juridic_safety = (total_amount < treshold || mandate.market_coverture);
                     mandate_list.push(mandate);
                 }
 
@@ -135,4 +138,38 @@ function sumOnKey(array, key) {
         total += object[key];
     }
     return total;
+}
+
+function getTreshold(procedure_type,service_type){
+
+    switch(procedure_type){
+        case 'NONE':
+        return 30000;
+        break;
+        case 'MAPLEG':
+        return 108000;
+        break;
+        case 'MAPLOU':
+        if(service_type=='Travaux'){
+            return 6657600;
+        }
+        else{
+            return 265600;
+        }
+        break;
+        case 'MAPLOU':
+        if(service_type=='Travaux'){
+            return 6657600;
+        }
+        else{
+            return 265600;
+        }
+        break;
+        case 'APPEL_OFFRE':
+        return 10000000000000000;
+        break;
+        default:
+        break;
+
+    }
 }
