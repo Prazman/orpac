@@ -131,7 +131,7 @@ function groupBy(list, keyGetter) {
 function sumOnKey(array, key) {
     var total = 0;
     for (var object of array) {
-        total += object.key;
+        total += object[key];
     }
     return total;
 }
