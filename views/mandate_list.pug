@@ -7,6 +7,7 @@ block content
     thead
       td Actions
       td Market Number
+      td Procedure Type
       td TTC Amount
       td Market Object
       td Nomenclature Code
@@ -26,6 +27,7 @@ block content
           a(href=mandate.url+'/delete').btn.btn-danger
             span.glyphicon.glyphicon-remove
         td #{mandate.market_number}
+        td #{mandate.procedure_type}
         td #{mandate.ttc_amount}
         td #{mandate.market_object}
         td #{mandate.nomenclature_code}

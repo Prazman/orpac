@@ -5,6 +5,7 @@ var Schema = mongoose.Schema;
 var MandateSchema = new Schema(
   {
     market_number: {type: String, required: false, max: 100},
+    procedure_type:{type:String,required:true, enum: ['NONE','MAPLEG','MAPLOU','APPEL_OFFRE']},
     ttc_amount: {type: Number, required: true, min: 0},
     market_object:{type:String,required:false,max:100},
     nomenclature_code:{type:String,required:false,max:100},

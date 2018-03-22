@@ -18,29 +18,30 @@ var fs = require('fs'),
 
 
 
-function mandateCreate(market_number, ttc_amount,market_object, nomenclature_code, service_type, service_provider, managing_service) {
-var unspaced_amount = ttc_amount.replace(/\s/g,'');
-var digital_amount = parseInt(unspaced_amount);
-var mandate_detail = {
-  market_number:market_number,
-  ttc_amount:digital_amount,
-  market_object:market_object,
-  nomenclature_code:nomenclature_code,
-  service_type:service_type,
-  service_provider:service_provider,
-  managing_service:managing_service
-}
-console.log(mandate_detail);
-     var mandate = new Mandate(mandate_detail);
-       
-  mandate.save(function (err) {
-    if (err) {
-      console.log(err);
-      return
+function mandateCreate(market_number, procedure_type, ttc_amount, market_object, nomenclature_code, service_type, service_provider, managing_service) {
+    var unspaced_amount = ttc_amount.replace(/\s/g, '');
+    var digital_amount = parseInt(unspaced_amount);
+    var mandate_detail = {
+        procedure_type: procedure_type,
+        market_number: market_number,
+        ttc_amount: digital_amount,
+        market_object: market_object,
+        nomenclature_code: nomenclature_code,
+        service_type: service_type,
+        service_provider: service_provider,
+        managing_service: managing_service
     }
-    console.log('New Mandate: ' + mandate);
+    console.log(mandate_detail);
+    var mandate = new Mandate(mandate_detail);
 
-  }  );
+    mandate.save(function(err) {
+        if (err) {
+            console.log(err);
+            return
+        }
+        console.log('New Mandate: ' + mandate);
+
+    });
 }
 
 function createMandates() {
@@ -52,12 +53,29 @@ function createMandates() {
     rl.on('line', function(line) {
         //console.log(line) //or parse line
         var mandate_data = line.split(',');
-        console.log('market_number',mandate_data[0])
-        mandateCreate(mandate_data[0],mandate_data[1],mandate_data[2],mandate_data[3],mandate_data[4],mandate_data[5],mandate_data[6],mandate_data[7]);
+        let procedure_type = getProcedureType(mandate_data[1]);
+        console.log('procedure_name',mandate_data[1]);
+        console.log('procedure_type',procedure_type);
+        mandateCreate(mandate_data[0], procedure_type, mandate_data[2], mandate_data[3], mandate_data[4], mandate_data[5], mandate_data[6], mandate_data[7], mandate_data[8]);
 
     })
 }
 
+function getProcedureType(procedure_name) {
+    switch (procedure_name) {
+        case 'Appel d\'offre':
+            return 'APPEL_OFFRE';
+            break;
+        case 'MAPA léger':
+            return 'MAPLEG';
+            break;
+        case 'MAPA allourdi':
+            return 'MAPLOU';
+            break;
+        default:
+            return 'NONE';
+    }
+}
 createMandates();
 
 //mongoose.connection.close();

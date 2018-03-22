@@ -43,6 +43,7 @@ exports.mandate_create_get = function(req, res) {
 // Handle Mandate create on POST.
 exports.mandate_create_post = (req, res, next) => {
     var mandate_detail = {
+        procedure_type:req.body.procedure_type,
         market_number: req.body.market_number,
         ttc_amount: req.body.ttc_amount,
         market_object: req.body.market_object,

@@ -5,6 +5,13 @@ block content
 
   form(method='POST' action='')
     div.form-group
+      label(for='procedure_type') Procedure Type:
+      select#name.form-control(type='select', placeholder='' name='procedure_type' value=(undefined===mandate ? '' : mandate.procedure_type))
+        option(value='NONE') NONE
+        option(value='MAPLEG') MAPLEG
+        option(value='MAPLOU') MAPLOU
+        option(value='APPEL_OFFRE') Appel d'offres
+      br
       label(for='market_number') Market Number:
       input#name.form-control(type='text', placeholder='Mapleg 01 etc.' name='market_number' value=(undefined===mandate ? '' : mandate.market_number))
       br
