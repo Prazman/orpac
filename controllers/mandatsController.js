@@ -17,7 +17,7 @@ exports.mandate_list = function(req, res, next) {
                     let treshold = getTreshold(mandate.procedure_type, mandate.service_type);
 
                     //juridicaly covered = total amouhnt does not exceed 30000 or mandate has a market number
-                    mandate.juridic_safety = isJuridicallySecured(mandate,total_amount);
+                    mandate.juridic_safety = isJuridicallySecured(mandate, total_amount);
                     mandate_list.push(mandate);
                 }
 
@@ -91,6 +91,12 @@ exports.mandate_update_get = function(req, res) {
         .exec(function(err, mandate_result) {
             res.render('mandate_form', { title: 'Mandate Details', mandate: mandate_result });
         });
+};
+
+// Display Mandate update form on GET.
+exports.graph = function(req, res) {
+    res.render('graph', { title: 'Graph' });
+
 };
 
 // Handle Mandate update on POST.

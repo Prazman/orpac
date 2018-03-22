@@ -31,5 +31,7 @@ router.get('/mandate/:id', mandate_controller.mandate_detail);
 // GET request for list of all Authors.
 router.get('/', mandate_controller.mandate_list);
 
+router.get('/graph', mandate_controller.graph);
+
 
 module.exports = router;

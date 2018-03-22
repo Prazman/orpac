@@ -63,7 +63,7 @@ function createMandates() {
 
 function getProcedureType(procedure_name) {
     switch (procedure_name) {
-        case 'Appel d\'offre':
+        case 'Appel d\'offres':
             return 'APPEL_OFFRE';
             break;
         case 'MAPA léger':
