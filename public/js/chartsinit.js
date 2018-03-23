@@ -23,7 +23,7 @@ var myPieChart = new Chart(ctx, {
 }
 
 function chartInit(){
-    var colors = ['blue','green'];
+    var colors = ['green','blue'];
     makeChart("market_coverture_count","Market Coverture (Number of mandates)",stats.market_coverture_count_data,["Oui","Non"],colors);
     makeChart("market_coverture_amount","Market Coverture (TTC Amount)",stats.market_coverture_amount_data,["Oui","Non"],colors);
     makeChart("juridic_safety_count","Juridic Safety (Number of mandates)",stats.juridic_safety_count_data,["Oui","Non"],colors);

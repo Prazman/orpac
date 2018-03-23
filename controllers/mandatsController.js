@@ -8,7 +8,7 @@ exports.mandate_list = function(req, res, next) {
             //Successful, so render
             //group all the mandates by nomenclature into a map object of structure {"nomenclature_code1":[mandate1,mandate2,..],"nomenclature_code2":[mandate3,mandate4,..],..}
             let grouped = groupBy(list_mandates, mandate => mandate.nomenclature_code);
-            let mandate_list = [];
+            let mandate_array = [];
             let market_coverture_count = 0;
             let market_coverture_amount = 0;
             let non_market_coverture_amount = 0;
@@ -16,7 +16,12 @@ exports.mandate_list = function(req, res, next) {
             grouped.forEach(function(element, index, map) {
                 //calculate total amount summing array of mandate on ttc_amount key
                 let total_amount = sumOnKey(element, 'ttc_amount');
-
+                console.log(element[0].nomenclature_code);
+                let mandate_group = {
+                    nomenclature_code:element[0].nomenclature_code,
+                    mandate_list:[],
+                    total_amount:total_amount
+                }
                 for (var mandate of element) {
 
                     mandate.juridic_safety = isJuridicallySecured(mandate, total_amount);
@@ -30,22 +35,24 @@ exports.mandate_list = function(req, res, next) {
                         juridic_safety_count++;
                     }
 
-                    mandate_list.push(mandate);
+                    mandate_group.mandate_list.push(mandate);
+                    console.log('mandate_group',mandate_group)
+                    //console.log(mandate_group.mandate_list);
                 }
-
+                mandate_array.push(mandate_group);
 
             })
-            var non_market_coverture_count = mandate_list.length-market_coverture_count;
-            var non_juridic_safety_count = mandate_list.length-juridic_safety_count;
+            var non_market_coverture_count = list_mandates.length-market_coverture_count;
+            var non_juridic_safety_count = list_mandates.length-juridic_safety_count;
             var stats = {
                 market_coverture_count_data: [market_coverture_count, non_market_coverture_count],
                 market_coverture_amount_data: [market_coverture_amount, non_market_coverture_amount],
                 juridic_safety_count_data: [juridic_safety_count, non_juridic_safety_count]
             }
-
+            //console.log(mandate_array)
             var stat_json_string = JSON.stringify(stats);
 
-            res.render('mandate_list', { title: 'Mandate List', mandate_list: mandate_list,charts_data:stat_json_string });
+            res.render('mandate_list', { title: 'Mandate List', mandate_list: mandate_array,charts_data:stat_json_string });
         });
 };
 

@@ -8,7 +8,7 @@ block content
         include charts
     block table
       div.row
-        table.table
+        table.table.table-bordered
           thead
             td Actions
             td Market Number
@@ -21,26 +21,31 @@ block content
             td Managing Service
             td Market Coverture
             td Juridic Safety
-          tbody
-          each mandate in mandate_list
-            tr
-              td
-                a(href=mandate.url).btn.btn-primary
-                  span.glyphicon.glyphicon-search
-                a(href=mandate.url+'/update').btn.btn-default
-                  span.glyphicon.glyphicon-pencil
-                a(href=mandate.url+'/delete').btn.btn-danger
-                  span.glyphicon.glyphicon-remove
-              td #{mandate.market_number}
-              td #{mandate.procedure_type}
-              td #{mandate.ttc_amount}
-              td #{mandate.market_object}
-              td #{mandate.nomenclature_code}
-              td #{mandate.service_type}
-              td #{mandate.service_provider}
-              td #{mandate.managing_service}
-              td 
-                span(class=mandate.market_coverture ? 'glyphicon glyphicon-ok' : 'glyphicon glyphicon-remove')
-              td
-                span(class=mandate.juridic_safety ? 'glyphicon glyphicon-ok' : 'glyphicon glyphicon-remove')
+
+          each mandate_group in mandate_list
+            tbody
+              tr.bg-primary
+                td(colspan="6") #{mandate_group.nomenclature_code}
+                td(colspan="5",style="text-align:right") Montant TTC : #{mandate_group.total_amount}
+              each mandate in mandate_group.mandate_list
+                tr
+                  td
+                    a(href=mandate.url).btn.btn-primary
+                      span.glyphicon.glyphicon-search
+                    a(href=mandate.url+'/update').btn.btn-default
+                      span.glyphicon.glyphicon-pencil
+                    a(href=mandate.url+'/delete').btn.btn-danger
+                      span.glyphicon.glyphicon-remove
+                  td #{mandate.market_number}
+                  td #{mandate.procedure_type}
+                  td #{mandate.ttc_amount}
+                  td #{mandate.market_object}
+                  td #{mandate.nomenclature_code}
+                  td #{mandate.service_type}
+                  td #{mandate.service_provider}
+                  td #{mandate.managing_service}
+                  td #{mandate.market_coverture ? 'Oui' : 'Non'}
+                    span(class=mandate.market_coverture ? 'glyphicon glyphicon-ok' : 'glyphicon glyphicon-remove') 
+                  td #{mandate.juridic_safety ? 'Oui' : 'Non'}
+                    span(class=mandate.juridic_safety ? 'glyphicon glyphicon-ok' : 'glyphicon glyphicon-remove')
 
