@@ -1,0 +1,12 @@
+div.col-6.col-md-4
+  canvas(id="market_coverture_count")
+div.col-6.col-md-4
+  canvas(id="market_coverture_amount")
+div.col-6.col-md-4
+  canvas(id="juridic_safety_count",)
+script.
+  let data_string = '!{charts_data}'
+  let stats = JSON.parse(data_string);
+script(language='javascript',src='/js/chartsinit.js',async=true)
+
+ 
