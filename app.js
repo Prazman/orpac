@@ -4,7 +4,7 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-
+const fileUpload = require('express-fileupload');
 var mandates = require('./routes/mandates');
 
 var mongoose = require('mongoose');
@@ -30,7 +30,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-
+app.use(fileUpload());
 app.use('/', mandates);
 app.use(express.static('public'));
 

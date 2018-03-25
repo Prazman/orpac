@@ -13,6 +13,10 @@ router.get('/mandate/create', mandate_controller.mandate_create_get);
 // POST request for creating Author.
 router.post('/mandate/create', mandate_controller.mandate_create_post);
 
+router.get('/mandate/import', mandate_controller.mandate_import_get);
+
+router.post('/mandate/import', mandate_controller.mandate_import_post);
+
 // GET request to delete Author.
 router.get('/mandate/:id/delete', mandate_controller.mandate_delete_get);
 
@@ -30,8 +34,6 @@ router.get('/mandate/:id', mandate_controller.mandate_detail);
 
 // GET request for list of all Authors.
 router.get('/', mandate_controller.mandate_list);
-
-router.get('/graph', mandate_controller.graph);
 
 
 module.exports = router;

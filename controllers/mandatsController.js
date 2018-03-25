@@ -2,12 +2,12 @@ var Mandate = require('../models/mandats');
 
 // Display list of all Mandates.
 exports.mandate_list = function(req, res, next) {
-var query = buildSearchQuery(req.query);
+    var query = buildSearchQuery(req.query);
 
 
 
-    console.log('search',query);
-    console.log('query',req.query)
+    console.log('search', query);
+    console.log('query', req.query)
     Mandate.find(query)
         .exec(function(err, list_mandates) {
             if (err) { return next(err); }
@@ -25,9 +25,9 @@ var query = buildSearchQuery(req.query);
                 //calculate total amount summing array of mandate on ttc_amount key
                 let total_amount = sumOnKey(element, 'ttc_amount');
                 let mandate_group = {
-                    nomenclature_code:element[0].nomenclature_code,
-                    mandate_list:[],
-                    total_amount:total_amount
+                    nomenclature_code: element[0].nomenclature_code,
+                    mandate_list: [],
+                    total_amount: total_amount
                 }
                 for (var mandate of element) {
 
@@ -44,8 +44,8 @@ var query = buildSearchQuery(req.query);
 
                     mandate_group.mandate_list.push(mandate);
 
-                    if(service_provider_list.indexOf(mandate.service_provider)==-1) service_provider_list.push(mandate.service_provider);
-                    if(managing_service_list.indexOf(mandate.managing_service)==-1) managing_service_list.push(mandate.managing_service);
+                    if (service_provider_list.indexOf(mandate.service_provider) == -1) service_provider_list.push(mandate.service_provider);
+                    if (managing_service_list.indexOf(mandate.managing_service) == -1) managing_service_list.push(mandate.managing_service);
                     //console.log(mandate_group.mandate_list);
                 }
                 mandate_array.push(mandate_group);
@@ -54,11 +54,11 @@ var query = buildSearchQuery(req.query);
             })
 
             var formdata = {
-                managing_service_list:managing_service_list,
-                service_provider_list:service_provider_list
+                managing_service_list: managing_service_list,
+                service_provider_list: service_provider_list
             }
-            var non_market_coverture_count = list_mandates.length-market_coverture_count;
-            var non_juridic_safety_count = list_mandates.length-juridic_safety_count;
+            var non_market_coverture_count = list_mandates.length - market_coverture_count;
+            var non_juridic_safety_count = list_mandates.length - juridic_safety_count;
             var stats = {
                 market_coverture_count_data: [market_coverture_count, non_market_coverture_count],
                 market_coverture_amount_data: [market_coverture_amount, non_market_coverture_amount],
@@ -67,7 +67,7 @@ var query = buildSearchQuery(req.query);
             //console.log(mandate_array)
             var stat_json_string = JSON.stringify(stats);
 
-            res.render('mandate_list', { title: 'Mandate List', mandate_list: mandate_array,charts_data:stat_json_string ,formdata :formdata});
+            res.render('mandate_list', { title: 'Mandate List', mandate_list: mandate_array, charts_data: stat_json_string, formdata: formdata });
         });
 };
 
@@ -166,6 +166,64 @@ exports.mandate_update_post = function(req, res) {
     });
 };
 
+exports.mandate_import_get = function(req, res) {
+    res.render('mandate_import', { title: 'Mandate Import' });
+}
+
+exports.mandate_import_post = function(req, res) {
+    if (!req.files)
+        return res.status(400).send('No files were uploaded.');
+
+    // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
+    let file = req.files.file;
+    var target_path = './temp/' + file.name
+    file.mv(target_path, function(err) {
+        if (err)
+            return res.status(500).send(err);
+
+        var fs = require('fs');
+        var csv = require('csv');
+        var readStream = fs.createReadStream(target_path);
+        readStream.on('data', function(data) {
+
+            csv.parse(data.toString(), { delimiter: ',' }, function(err, output) {
+                //console.log('output',output[1]);
+                for (var i = 0; i < output.length; i++) {
+                    var mandate = output[i];
+                    var mandate_detail = {
+                        procedure_type: getProcedureType(mandate[1]),
+                        market_number: mandate[0],
+                        ttc_amount: parseInt(mandate[2].replace(/\s/g, '')),
+                        market_object: mandate[3],
+                        nomenclature_code: mandate[4],
+                        service_type: mandate[5],
+                        service_provider: mandate[6],
+                        managing_service: mandate[7]
+                    }
+                    console.log('details', mandate_detail);
+                    var mandate = new Mandate(mandate_detail);
+                 // Create a genre object with escaped and trimmed data.
+
+
+                 mandate.save(function(err) {
+                     if (err) { return next(err); }
+                     // Genre saved. Redirect to genre detail page.
+                     //res.redirect('/');
+                     console.log('mandate saved')
+                 });
+                }
+
+                 
+
+            });
+        });
+        readStream.on('end', function() {
+            res.redirect('/');
+        });
+        /*res.send('File uploaded!');*/
+    });
+}
+
 function groupBy(list, keyGetter) {
     const map = new Map();
     list.forEach((item) => {
@@ -227,30 +285,46 @@ function getTreshold(procedure_type, service_type) {
     }
 }
 
-function buildSearchQuery(query){
+function getProcedureType(procedure_name) {
+    switch (procedure_name) {
+        case 'Appel d\'offres':
+            return 'APPEL_OFFRE';
+            break;
+        case 'MAPA léger':
+            return 'MAPLEG';
+            break;
+        case 'MAPA allourdi':
+            return 'MAPLOU';
+            break;
+        default:
+            return 'NONE';
+    }
+}
+
+function buildSearchQuery(query) {
     let search_object = {};
-    if(query.procedure_type && query.procedure_type!==''){
+    if (query.procedure_type && query.procedure_type !== '') {
         search_object.procedure_type = query.procedure_type;
     }
-    if(query.market_number && query.market_number!==''){
+    if (query.market_number && query.market_number !== '') {
         search_object.market_number = query.market_number;
     }
-    if(query.ttc_amount && query.ttc_amount!==''){
+    if (query.ttc_amount && query.ttc_amount !== '') {
         search_object.ttc_amount = parseInt(query.ttc_amount);
     }
-    if(query.market_object && query.market_object!==''){
+    if (query.market_object && query.market_object !== '') {
         search_object.market_object = new RegExp(query.market_object, "i");
     }
-    if(query.nomenclature_code && query.nomenclature_code!==''){
+    if (query.nomenclature_code && query.nomenclature_code !== '') {
         search_object.nomenclature_code = new RegExp(query.nomenclature_code, "i");
     }
-    if(query.service_type && query.service_type!==''){
+    if (query.service_type && query.service_type !== '') {
         search_object.service_type = query.service_type;
     }
-    if(query.service_provider && query.service_provider!==''){
+    if (query.service_provider && query.service_provider !== '') {
         search_object.service_provider = query.service_provider;
     }
-    if(query.managing_service && query.managing_service!==''){
+    if (query.managing_service && query.managing_service !== '') {
         search_object.managing_service = query.managing_service;
     }
     return search_object;
