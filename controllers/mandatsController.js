@@ -2,7 +2,13 @@ var Mandate = require('../models/mandats');
 
 // Display list of all Mandates.
 exports.mandate_list = function(req, res, next) {
-    Mandate.find({})
+var query = buildSearchQuery(req.query);
+
+
+
+    console.log('search',query);
+    console.log('query',req.query)
+    Mandate.find(query)
         .exec(function(err, list_mandates) {
             if (err) { return next(err); }
             //Successful, so render
@@ -13,10 +19,11 @@ exports.mandate_list = function(req, res, next) {
             let market_coverture_amount = 0;
             let non_market_coverture_amount = 0;
             let juridic_safety_count = 0;
+            var managing_service_list = [];
+            var service_provider_list = [];
             grouped.forEach(function(element, index, map) {
                 //calculate total amount summing array of mandate on ttc_amount key
                 let total_amount = sumOnKey(element, 'ttc_amount');
-                console.log(element[0].nomenclature_code);
                 let mandate_group = {
                     nomenclature_code:element[0].nomenclature_code,
                     mandate_list:[],
@@ -36,12 +43,20 @@ exports.mandate_list = function(req, res, next) {
                     }
 
                     mandate_group.mandate_list.push(mandate);
-                    console.log('mandate_group',mandate_group)
+
+                    if(service_provider_list.indexOf(mandate.service_provider)==-1) service_provider_list.push(mandate.service_provider);
+                    if(managing_service_list.indexOf(mandate.managing_service)==-1) managing_service_list.push(mandate.managing_service);
                     //console.log(mandate_group.mandate_list);
                 }
                 mandate_array.push(mandate_group);
 
+
             })
+
+            var formdata = {
+                managing_service_list:managing_service_list,
+                service_provider_list:service_provider_list
+            }
             var non_market_coverture_count = list_mandates.length-market_coverture_count;
             var non_juridic_safety_count = list_mandates.length-juridic_safety_count;
             var stats = {
@@ -52,7 +67,7 @@ exports.mandate_list = function(req, res, next) {
             //console.log(mandate_array)
             var stat_json_string = JSON.stringify(stats);
 
-            res.render('mandate_list', { title: 'Mandate List', mandate_list: mandate_array,charts_data:stat_json_string });
+            res.render('mandate_list', { title: 'Mandate List', mandate_list: mandate_array,charts_data:stat_json_string ,formdata :formdata});
         });
 };
 
@@ -210,4 +225,33 @@ function getTreshold(procedure_type, service_type) {
             break;
 
     }
+}
+
+function buildSearchQuery(query){
+    let search_object = {};
+    if(query.procedure_type && query.procedure_type!==''){
+        search_object.procedure_type = query.procedure_type;
+    }
+    if(query.market_number && query.market_number!==''){
+        search_object.market_number = query.market_number;
+    }
+    if(query.ttc_amount && query.ttc_amount!==''){
+        search_object.ttc_amount = parseInt(query.ttc_amount);
+    }
+    if(query.market_object && query.market_object!==''){
+        search_object.market_object = new RegExp(query.market_object, "i");
+    }
+    if(query.nomenclature_code && query.nomenclature_code!==''){
+        search_object.nomenclature_code = new RegExp(query.nomenclature_code, "i");
+    }
+    if(query.service_type && query.service_type!==''){
+        search_object.service_type = query.service_type;
+    }
+    if(query.service_provider && query.service_provider!==''){
+        search_object.service_provider = query.service_provider;
+    }
+    if(query.managing_service && query.managing_service!==''){
+        search_object.managing_service = query.managing_service;
+    }
+    return search_object;
 }

@@ -1,0 +1,45 @@
+
+a.btn.btn-primary(data-toggle="collapse" href="#search_form" role="button" aria-expanded="false" aria-controls="Toggle Search") Toggle Search
+div#search_form.collapse
+  form.form-inline(method='get',action='/')
+    div.form-group
+        label(for='procedure_type') Procedure Type:
+        select#name.form-control(type='select', placeholder='' name='procedure_type' )
+          option(value='') ALL
+          option(value='NONE') NONE
+          option(value='MAPLEG') MAPLEG
+          option(value='MAPLOU') MAPLOU
+          option(value='APPEL_OFFRE') Appel d'offres
+    div.form-group
+        label(for='market_number') Market Number:
+        input#name.form-control(type='text', placeholder='Mapleg 01 etc.' name='market_number' )
+    div.form-group
+        label(for='ttc_amount') TTC Amount:
+        input#name.form-control(type='text', placeholder='' name='ttc_amount' )
+    div.form-group
+        label(for='market_object') Market Object:
+        input#name.form-control(type='text', placeholder='' name='market_object' )
+    div.form-group
+        label(for='nomenclature_code') Nomenclature Code:
+        input#name.form-control(type='text', placeholder='' name='nomenclature_code')
+    div.form-group
+        label(for='service_type') Service Type:
+        select#name.form-control(type='select', placeholder='' name='service_type')
+          option(value='') ALL
+          option(value='Travaux') Travaux
+          option(value='Fournitures') Fournitures
+          option(value='Service') Services
+    div.form-group
+        label(for='service_provider') Service Provider:
+        select#name.form-control(type='text', placeholder='' name='service_provider' )
+          option(value='') ALL
+          each service_provider in formdata.service_provider_list
+            option(value=service_provider)  #{service_provider} 
+    div.form-group
+        label(for='managing_service') Managing Service:
+        select#name.form-control(type='text', placeholder='' name='managing_service' )
+          option(value='') ALL
+          each managing_service in formdata.managing_service_list
+            option(value=managing_service)  #{managing_service}
+        button.btn.btn-primary(type='submit') Submit
+        a.btn.btn-primary(href='/') Reset
