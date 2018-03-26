@@ -1,9 +1,13 @@
-div.col-md-4
-  canvas(id="market_coverture_count")
-div.col-md-4
-  canvas(id="market_coverture_amount")
-div.col-md-4
-  canvas(id="juridic_safety_count",)
+a.btn.btn-primary(data-toggle="collapse" href="#charts_area" role="button" aria-expanded="false" aria-controls="Toggle Charts") Toggle Charts
+div#charts_area.collapse
+  div.col-md-6
+    canvas(id="market_coverture_count")
+  div.col-md-6
+    canvas(id="market_coverture_amount")
+  div.col-md-6
+    canvas(id="juridic_safety_count")
+  div.col-md-6
+    canvas(id="juridic_safety_amount")
 script.
   let data_string = '!{charts_data}'
   let stats = JSON.parse(data_string);

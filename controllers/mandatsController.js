@@ -19,6 +19,8 @@ exports.mandate_list = function(req, res, next) {
             let market_coverture_amount = 0;
             let non_market_coverture_amount = 0;
             let juridic_safety_count = 0;
+            let juridic_safety_amount = 0;
+            let non_juridic_safety_amount = 0;
             var managing_service_list = [];
             var service_provider_list = [];
             grouped.forEach(function(element, index, map) {
@@ -31,7 +33,7 @@ exports.mandate_list = function(req, res, next) {
                 }
                 for (var mandate of element) {
 
-                    mandate.juridic_safety = isJuridicallySecured(mandate, total_amount);
+                    mandate.juridic_safety = mandate.isJuridicallySecured(total_amount);
                     if (mandate.market_coverture) {
                         market_coverture_count++;
                         market_coverture_amount += mandate.ttc_amount;
@@ -40,6 +42,10 @@ exports.mandate_list = function(req, res, next) {
                     }
                     if (mandate.juridic_safety) {
                         juridic_safety_count++;
+                        juridic_safety_amount+=mandate.ttc_amount;
+                    }
+                    else{
+                        non_juridic_safety_amount+=mandate.ttc_amount;
                     }
 
                     mandate_group.mandate_list.push(mandate);
@@ -62,7 +68,8 @@ exports.mandate_list = function(req, res, next) {
             var stats = {
                 market_coverture_count_data: [market_coverture_count, non_market_coverture_count],
                 market_coverture_amount_data: [market_coverture_amount, non_market_coverture_amount],
-                juridic_safety_count_data: [juridic_safety_count, non_juridic_safety_count]
+                juridic_safety_count_data: [juridic_safety_count, non_juridic_safety_count],
+                juridic_safety_amount_data: [juridic_safety_amount,non_juridic_safety_amount]
             }
             //console.log(mandate_array)
             var stat_json_string = JSON.stringify(stats);
@@ -135,11 +142,7 @@ exports.mandate_update_get = function(req, res) {
         });
 };
 
-// Display Mandate update form on GET.
-exports.graph = function(req, res) {
-    res.render('graph', { title: 'Graph' });
 
-};
 
 // Handle Mandate update on POST.
 exports.mandate_update_post = function(req, res) {
@@ -202,18 +205,18 @@ exports.mandate_import_post = function(req, res) {
                     }
                     console.log('details', mandate_detail);
                     var mandate = new Mandate(mandate_detail);
-                 // Create a genre object with escaped and trimmed data.
+                    // Create a genre object with escaped and trimmed data.
 
 
-                 mandate.save(function(err) {
-                     if (err) { return next(err); }
-                     // Genre saved. Redirect to genre detail page.
-                     //res.redirect('/');
-                     console.log('mandate saved')
-                 });
+                    mandate.save(function(err) {
+                        if (err) { return next(err); }
+                        // Genre saved. Redirect to genre detail page.
+                        //res.redirect('/');
+                        console.log('mandate saved')
+                    });
                 }
 
-                 
+
 
             });
         });
@@ -246,44 +249,7 @@ function sumOnKey(array, key) {
     return total;
 }
 
-function isJuridicallySecured(mandate, total_amount) {
-    let treshold = getTreshold(mandate.procedure_type, mandate.service_type);
 
-    //juridicaly covered = total amouhnt does not exceed 30000 or mandate has a market number
-    return (total_amount < treshold);
-}
-
-function getTreshold(procedure_type, service_type) {
-
-    switch (procedure_type) {
-        case 'NONE':
-            return 30000;
-            break;
-        case 'MAPLEG':
-            return 108000;
-            break;
-        case 'MAPLOU':
-            if (service_type == 'Travaux') {
-                return 6657600;
-            } else {
-                return 265600;
-            }
-            break;
-        case 'MAPLOU':
-            if (service_type == 'Travaux') {
-                return 6657600;
-            } else {
-                return 265600;
-            }
-            break;
-        case 'APPEL_OFFRE':
-            return 10000000000000000;
-            break;
-        default:
-            break;
-
-    }
-}
 
 function getProcedureType(procedure_name) {
     switch (procedure_name) {

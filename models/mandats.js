@@ -26,7 +26,43 @@ MandateSchema
         return this.market_number !=='';
     });
 
+MandateSchema.methods.isJuridicallySecured = function(total_amount) {
+    let treshold = this.getTreshold();
 
+    //juridicaly covered = total amouhnt does not exceed 30000 or mandate has a market number
+    return (total_amount < treshold);
+}
+MandateSchema.methods.getTreshold = function() {
+
+    switch (this.procedure_type) {
+        case 'NONE':
+            return 30000;
+            break;
+        case 'MAPLEG':
+            return 108000;
+            break;
+        case 'MAPLOU':
+            if (this.service_type == 'Travaux') {
+                return 6657600;
+            } else {
+                return 265600;
+            }
+            break;
+        case 'MAPLOU':
+            if (this.service_type == 'Travaux') {
+                return 6657600;
+            } else {
+                return 265600;
+            }
+            break;
+        case 'APPEL_OFFRE':
+            return 10000000000000000;
+            break;
+        default:
+            break;
+
+    }
+}
 
 //Export model
 module.exports = mongoose.model('Mandate', MandateSchema);
