@@ -4,10 +4,6 @@ var Mandate = require('../models/mandats');
 exports.mandate_list = function(req, res, next) {
     var query = buildSearchQuery(req.query);
 
-
-
-    console.log('search', query);
-    console.log('query', req.query)
     Mandate.find(query)
         .exec(function(err, list_mandates) {
             if (err) { return next(err); }
@@ -29,7 +25,7 @@ exports.mandate_list = function(req, res, next) {
                 let mandate_group = {
                     nomenclature_code: element[0].nomenclature_code,
                     mandate_list: [],
-                    total_amount: total_amount
+                    total_amount: precisionRound(total_amount,2)
                 }
                 for (var mandate of element) {
 
@@ -42,17 +38,16 @@ exports.mandate_list = function(req, res, next) {
                     }
                     if (mandate.juridic_safety) {
                         juridic_safety_count++;
-                        juridic_safety_amount+=mandate.ttc_amount;
-                    }
-                    else{
-                        non_juridic_safety_amount+=mandate.ttc_amount;
+                        juridic_safety_amount += mandate.ttc_amount;
+                    } else {
+                        non_juridic_safety_amount += mandate.ttc_amount;
                     }
 
                     mandate_group.mandate_list.push(mandate);
 
                     if (service_provider_list.indexOf(mandate.service_provider) == -1) service_provider_list.push(mandate.service_provider);
                     if (managing_service_list.indexOf(mandate.managing_service) == -1) managing_service_list.push(mandate.managing_service);
-                    //console.log(mandate_group.mandate_list);
+                
                 }
                 mandate_array.push(mandate_group);
 
@@ -67,11 +62,10 @@ exports.mandate_list = function(req, res, next) {
             var non_juridic_safety_count = list_mandates.length - juridic_safety_count;
             var stats = {
                 market_coverture_count_data: [market_coverture_count, non_market_coverture_count],
-                market_coverture_amount_data: [market_coverture_amount, non_market_coverture_amount],
+                market_coverture_amount_data: [precisionRound(market_coverture_amount, 2), precisionRound(non_market_coverture_amount, 2)],
                 juridic_safety_count_data: [juridic_safety_count, non_juridic_safety_count],
-                juridic_safety_amount_data: [juridic_safety_amount,non_juridic_safety_amount]
+                juridic_safety_amount_data: [precisionRound(juridic_safety_amount, 2), precisionRound(non_juridic_safety_amount, 2)]
             }
-            //console.log(mandate_array)
             var stat_json_string = JSON.stringify(stats);
 
             res.render('mandate_list', { title: 'Mandate List', mandate_list: mandate_array, charts_data: stat_json_string, formdata: formdata });
@@ -164,7 +158,7 @@ exports.mandate_update_post = function(req, res) {
             return next(err);
         }
         //successful - redirect to book detail page.
-        console.log('test', themandate);
+
         res.redirect('/');
     });
 };
@@ -183,47 +177,54 @@ exports.mandate_import_post = function(req, res) {
     file.mv(target_path, function(err) {
         if (err)
             return res.status(500).send(err);
-
-        var fs = require('fs');
-        var csv = require('csv');
+        var csv = require('csv-parser')
+        var fs = require('fs')
+        var stream = csv({
+            raw: false, // do not decode to utf-8 strings
+            separator: ',', // specify optional cell separator
+            quote: '"', // specify optional quote character
+            escape: '"', // specify optional escape character (defaults to quote value)
+            newline: '\n', // specify a newline character
+            headers: ['market_number', 'procedure_type', 'ttc_amount', 'market_object', 'nomenclature_code', 'service_type', 'service_provider', 'managing_service'] // Specifing the headers
+        })
         var readStream = fs.createReadStream(target_path);
-        readStream.on('data', function(data) {
+        var errcount = 0;
+        var errors = [];
+        var donecount = 0;
+        readStream.pipe(stream).on('data', function(mandate) {
 
-            csv.parse(data.toString(), { delimiter: ',' }, function(err, output) {
-                //console.log('output',output[1]);
-                for (var i = 0; i < output.length; i++) {
-                    var mandate = output[i];
-                    var mandate_detail = {
-                        procedure_type: getProcedureType(mandate[1]),
-                        market_number: mandate[0],
-                        ttc_amount: parseInt(mandate[2].replace(/\s/g, '')),
-                        market_object: mandate[3],
-                        nomenclature_code: mandate[4],
-                        service_type: mandate[5],
-                        service_provider: mandate[6],
-                        managing_service: mandate[7]
-                    }
-                    console.log('details', mandate_detail);
-                    var mandate = new Mandate(mandate_detail);
-                    // Create a genre object with escaped and trimmed data.
+            mandate.ttc_amount = parseAmount(mandate.ttc_amount);
+            mandate.procedure_type = getProcedureType(mandate.procedure_type);
+            var mandate = new Mandate(mandate);
+            // Create a genre object with escaped and trimmed data.
 
 
-                    mandate.save(function(err) {
-                        if (err) { return next(err); }
-                        // Genre saved. Redirect to genre detail page.
-                        //res.redirect('/');
-                        console.log('mandate saved')
-                    });
+            mandate.save(function(err) {
+                if (err) {
+
+                    errcount++;
+                    errors.push(err);
                 }
+                else{
 
-
+                    donecount++;
+                }
+            
 
             });
-        });
+
+        })
+        
         readStream.on('end', function() {
-            res.redirect('/');
+
+            let report = {
+                donecount:donecount,
+                errorcount:errcount,
+                errors :errors
+            }
+            
+             res.render('mandate_import', { title: 'Mandate Import',report:report });
         });
-        /*res.send('File uploaded!');*/
     });
 }
 
@@ -249,22 +250,37 @@ function sumOnKey(array, key) {
     return total;
 }
 
-
+function parseAmount(ttc_amount) {
+    //remove euro symbol
+    var amount = ttc_amount.replace(/\u20ac/g, '');
+    //remove white space
+    amount = amount.replace(/,/g, '.');
+    amount = amount.replace(/\s/g, '');
+    amount = parseFloat(amount);
+    return amount;
+}
 
 function getProcedureType(procedure_name) {
     switch (procedure_name) {
         case 'Appel d\'offres':
+        case 'Appel d\'offre':
             return 'APPEL_OFFRE';
             break;
         case 'MAPA léger':
             return 'MAPLEG';
             break;
         case 'MAPA allourdi':
+        case 'MAPA lourd':
             return 'MAPLOU';
             break;
         default:
             return 'NONE';
     }
+}
+
+function precisionRound(number, precision) {
+    var factor = Math.pow(10, precision);
+    return Math.round(number * factor) / factor;
 }
 
 function buildSearchQuery(query) {

@@ -2,7 +2,15 @@ extends layout
 
 block content
   h1 #{title}
-
+  if report
+    div.alert.alert-info(role="alert")
+      span  Successful #{report.donecount}
+      span  Errors #{report.errorcount}
+      a(data-toggle="collapse" href="#errors")  View errors
+      div.alert.alert-danger.collapse#errors
+        each err in report.errors
+          span #{err}
+          br
   form(method='POST' action='' enctype="multipart/form-data")
     div.form-group
       label(for="file") Fichier CSV à importer
