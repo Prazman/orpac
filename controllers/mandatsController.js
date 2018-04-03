@@ -15,7 +15,7 @@ exports.mandate_list = function(req, res, next) {
             let market_coverture_amount = 0;
             let non_market_coverture_amount = 0;
             let juridic_safety_count = 0;
-            let juridic_safety_amount = 0;
+            let juridic_safety_amount = 0
             let non_juridic_safety_amount = 0;
             var managing_service_list = [];
             var service_provider_list = [];
@@ -25,7 +25,7 @@ exports.mandate_list = function(req, res, next) {
                 let mandate_group = {
                     nomenclature_code: element[0].nomenclature_code,
                     mandate_list: [],
-                    total_amount: precisionRound(total_amount,2)
+                    total_amount: precisionRound(total_amount, 2)
                 }
                 for (var mandate of element) {
 
@@ -47,7 +47,7 @@ exports.mandate_list = function(req, res, next) {
 
                     if (service_provider_list.indexOf(mandate.service_provider) == -1) service_provider_list.push(mandate.service_provider);
                     if (managing_service_list.indexOf(mandate.managing_service) == -1) managing_service_list.push(mandate.managing_service);
-                
+
                 }
                 mandate_array.push(mandate_group);
 
@@ -128,6 +128,20 @@ exports.mandate_delete_post = function(req, res) {
     });
 };
 
+exports.mandate_deleteall_get = function(req, res) {
+
+    res.render('mandate_deleteall', { title: 'Mandate Deletion'});
+
+};
+
+// Handle Mandate delete on POST.
+exports.mandate_deleteall_post = function(req, res) {
+
+    Mandate.remove({}, function(){
+        res.redirect('/');
+    })
+};
+
 // Display Mandate update form on GET.
 exports.mandate_update_get = function(req, res) {
     Mandate.findById(req.params.id)
@@ -204,26 +218,25 @@ exports.mandate_import_post = function(req, res) {
 
                     errcount++;
                     errors.push(err);
-                }
-                else{
+                } else {
 
                     donecount++;
                 }
-            
+
 
             });
 
         })
-        
+
         readStream.on('end', function() {
 
             let report = {
-                donecount:donecount,
-                errorcount:errcount,
-                errors :errors
+                donecount: donecount,
+                errorcount: errcount,
+                errors: errors
             }
-            
-             res.render('mandate_import', { title: 'Mandate Import',report:report });
+
+            res.render('mandate_import', { title: 'Mandate Import', report: report });
         });
     });
 }

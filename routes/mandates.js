@@ -18,6 +18,12 @@ router.get('/mandate/import', mandate_controller.mandate_import_get);
 router.post('/mandate/import', mandate_controller.mandate_import_post);
 
 // GET request to delete Author.
+router.get('/mandate/deleteall', mandate_controller.mandate_deleteall_get);
+
+// POST request to delete Author.
+router.post('/mandate/deleteall', mandate_controller.mandate_deleteall_post);
+
+// GET request to delete Author.
 router.get('/mandate/:id/delete', mandate_controller.mandate_delete_get);
 
 // POST request to delete Author.
