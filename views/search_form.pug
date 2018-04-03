@@ -41,6 +41,18 @@ div#search_form.collapse
           option(value='') ALL
           each managing_service in formdata.managing_service_list
             option(value=managing_service)  #{managing_service}
+    div.form-group
+        label(for='market_coverture') Market Coverture:
+        select#name.form-control(type='text', placeholder='' name='market_coverture' )
+          option(value='') ALL
+          option(value='true')  YES
+          option(value='false') NO
+    div.form-group
+        label(for='juridic_safety') Juridic Safety:
+        select#name.form-control(type='text', placeholder='' name='juridic_safety' )
+          option(value='') ALL
+          option(value='true')  YES
+          option(value='false') NO
 
         button.btn.btn-primary(type='submit') Submit
         a.btn.btn-primary(href='/') Reset

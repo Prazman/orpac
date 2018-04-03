@@ -3,7 +3,7 @@ var Mandate = require('../models/mandats');
 // Display list of all Mandates.
 exports.mandate_list = function(req, res, next) {
     var query = buildSearchQuery(req.query);
-
+    console.log('query', query);
     Mandate.find(query)
         .exec(function(err, list_mandates) {
             if (err) { return next(err); }
@@ -19,37 +19,48 @@ exports.mandate_list = function(req, res, next) {
             let non_juridic_safety_amount = 0;
             var managing_service_list = [];
             var service_provider_list = [];
+            let mandate_list;
             grouped.forEach(function(element, index, map) {
                 //calculate total amount summing array of mandate on ttc_amount key
+                mandate_list = [];
                 let total_amount = sumOnKey(element, 'ttc_amount');
-                let mandate_group = {
-                    nomenclature_code: element[0].nomenclature_code,
-                    mandate_list: [],
-                    total_amount: precisionRound(total_amount, 2)
-                }
+
+
                 for (var mandate of element) {
 
                     mandate.juridic_safety = mandate.isJuridicallySecured(total_amount);
-                    if (mandate.market_coverture) {
-                        market_coverture_count++;
-                        market_coverture_amount += mandate.ttc_amount;
-                    } else {
-                        non_market_coverture_amount += mandate.ttc_amount;
-                    }
-                    if (mandate.juridic_safety) {
-                        juridic_safety_count++;
-                        juridic_safety_amount += mandate.ttc_amount;
-                    } else {
-                        non_juridic_safety_amount += mandate.ttc_amount;
-                    }
+                    let donotpush = (req.query.juridic_safety && ((req.query.juridic_safety == 'true' && !mandate.juridic_safety) || (req.query.juridic_safety == 'false' && mandate.juridic_safety)))
+                    if (!donotpush) {
+                        if (mandate.market_coverture) {
+                            market_coverture_count++;
+                            market_coverture_amount += mandate.ttc_amount;
+                        } else {
+                            non_market_coverture_amount += mandate.ttc_amount;
+                        }
+                        if (mandate.juridic_safety) {
+                            juridic_safety_count++;
+                            juridic_safety_amount += mandate.ttc_amount;
+                        } else {
+                            non_juridic_safety_amount += mandate.ttc_amount;
+                        }
 
-                    mandate_group.mandate_list.push(mandate);
+                        mandate_list.push(mandate);
 
-                    if (service_provider_list.indexOf(mandate.service_provider) == -1) service_provider_list.push(mandate.service_provider);
-                    if (managing_service_list.indexOf(mandate.managing_service) == -1) managing_service_list.push(mandate.managing_service);
+                        if (service_provider_list.indexOf(mandate.service_provider) == -1) service_provider_list.push(mandate.service_provider);
+                        if (managing_service_list.indexOf(mandate.managing_service) == -1) managing_service_list.push(mandate.managing_service);
+
+                    }
 
                 }
+                if(mandate_list.length>0){
+                    let mandate_group = {
+                    nomenclature_code: element[0].nomenclature_code,
+                    mandate_list: mandate_list,
+                    total_amount: precisionRound(total_amount, 2)
+                }
                 mandate_array.push(mandate_group);
+                }
+                
 
 
             })
@@ -130,14 +141,14 @@ exports.mandate_delete_post = function(req, res) {
 
 exports.mandate_deleteall_get = function(req, res) {
 
-    res.render('mandate_deleteall', { title: 'Mandate Deletion'});
+    res.render('mandate_deleteall', { title: 'Mandate Deletion' });
 
 };
 
 // Handle Mandate delete on POST.
 exports.mandate_deleteall_post = function(req, res) {
 
-    Mandate.remove({}, function(){
+    Mandate.remove({}, function() {
         res.redirect('/');
     })
 };
@@ -304,9 +315,17 @@ function buildSearchQuery(query) {
     if (query.market_number && query.market_number !== '') {
         search_object.market_number = query.market_number;
     }
+    if (query.market_coverture) {
+        if (query.market_coverture == 'true') {
+            search_object.market_number = { $ne: '' };
+        } else if (query.market_coverture == 'false') {
+            search_object.market_number = '';
+        }
+    }
     if (query.ttc_amount && query.ttc_amount !== '') {
         search_object.ttc_amount = parseInt(query.ttc_amount);
     }
+
     if (query.market_object && query.market_object !== '') {
         search_object.market_object = new RegExp(query.market_object, "i");
     }
@@ -322,5 +341,6 @@ function buildSearchQuery(query) {
     if (query.managing_service && query.managing_service !== '') {
         search_object.managing_service = query.managing_service;
     }
+
     return search_object;
 }
