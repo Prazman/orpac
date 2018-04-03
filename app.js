@@ -7,8 +7,10 @@ var bodyParser = require('body-parser');
 const fileUpload = require('express-fileupload');
 var mandates = require('./routes/mandates');
 
+
 var mongoose = require('mongoose');
-var mongoDB = 'mongodb://localhost:27017/orpac';
+var mongoDB =   process.env.MONGODB_URI || 'mongodb://localhost:27017/orpac';//'mongodb://prazman:L9admin!@ds227939.mlab.com:27939/orpac';
+
 mongoose.connect(mongoDB);
 mongoose.Promise = global.Promise;
 var db = mongoose.connection;
